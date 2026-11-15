@@ -1,0 +1,587 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>DirasaJob</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky header, blue zellige-pattern hero with search, then filters sidebar + offer list; separate views for companies and "my space". */
+:root{
+  --bg:#f3f4f8; --surface:#ffffff; --fg:#161a2e; --muted:#5a6079; --line:#dfe2ec;
+  --accent:#1f3fbf; --accent-fg:#ffffff; --accent-soft:#e6ebfb;
+  --saffron:#e8a317; --saffron-fg:#2a1d00; --saffron-soft:#fdf0cf;
+  --good:#17744a; --good-soft:#dcf2e5; --chip:#eceef6;
+  --hero-bg:#1f3fbf; --hero-fg:#ffffff; --danger:#b3261e;
+  --font-display:"Bricolage Grotesque",Inter,system-ui,sans-serif;
+  --font-body:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10121e; --surface:#1a1d2e; --fg:#eceef8; --muted:#a2a8c2; --line:#2b3048;
+    --accent:#8aa0ff; --accent-fg:#0d1130; --accent-soft:#232a52;
+    --saffron:#f2b53a; --saffron-fg:#2a1d00; --saffron-soft:#3a2f12;
+    --good:#6fd9a3; --good-soft:#173b2b; --chip:#242842;
+    --hero-bg:#17236b; --hero-fg:#ffffff; --danger:#ff8a80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10121e; --surface:#1a1d2e; --fg:#eceef8; --muted:#a2a8c2; --line:#2b3048;
+  --accent:#8aa0ff; --accent-fg:#0d1130; --accent-soft:#232a52;
+  --saffron:#f2b53a; --saffron-fg:#2a1d00; --saffron-soft:#3a2f12;
+  --good:#6fd9a3; --good-soft:#173b2b; --chip:#242842;
+  --hero-bg:#17236b; --hero-fg:#ffffff; --danger:#ff8a80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--font-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--surface);z-index:30}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--font-display);margin:0;line-height:1.15;text-wrap:balance}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+
+/* header */
+.site-head{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.head-row{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg);font-family:var(--font-display);font-weight:700;font-size:1.3rem}
+.logo svg{width:30px;height:30px}
+.logo small{font:500 .75rem var(--font-body);color:var(--muted);display:block;margin-top:-4px;letter-spacing:.04em}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav a{padding:8px 12px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.95rem}
+nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.langs{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.langs button{border:0;background:transparent;padding:6px 10px;cursor:pointer;font-weight:600;font-size:.82rem;color:var(--muted)}
+.langs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+
+/* hero */
+.hero{background:var(--hero-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='white' stroke-opacity='.11' stroke-width='1.2'%3E%3Crect x='16' y='16' width='32' height='32'/%3E%3Crect x='16' y='16' width='32' height='32' transform='rotate(45 32 32)'/%3E%3C/g%3E%3C/svg%3E");color:var(--hero-fg)}
+.hero .wrap{padding-block:44px 40px}
+.hero h1{font-size:clamp(1.9rem,5vw,3.1rem);max-width:18ch}
+.hero p{max-width:56ch;margin:14px 0 24px;color:rgba(255,255,255,.86);font-size:1.05rem}
+.searchbar{display:grid;grid-template-columns:1fr 220px auto;gap:8px;background:var(--surface);padding:8px;border-radius:14px;max-width:860px;color:var(--fg)}
+.searchbar input,.searchbar select{border:1px solid transparent;background:var(--bg);border-radius:9px;padding:12px 14px;min-width:0;width:100%}
+.hero-stats{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap;font-size:.92rem;color:rgba(255,255,255,.85)}
+.hero-stats b{font-family:var(--font-display);font-size:1.35rem;color:#fff;margin-right:6px}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:9px 15px;cursor:pointer;font-weight:600;font-size:.92rem}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.saffron{background:var(--saffron);color:var(--saffron-fg);border-color:var(--saffron)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+
+/* notices */
+.note{background:var(--saffron-soft);border:1px solid var(--saffron);border-radius:10px;padding:10px 14px;margin-top:22px;font-size:.9rem}
+
+/* offers layout */
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;padding-block:22px 56px;align-items:start}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:16px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px)}
+.filters h2{font-size:1.05rem}
+.fgroup{display:grid;gap:7px;min-width:0}
+.fgroup>label,.fgroup>legend{font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;padding:0}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:7px;min-width:0}
+.check{display:flex;gap:9px;align-items:center;font-size:.93rem;cursor:pointer}
+.check input{width:17px;height:17px;accent-color:var(--accent)}
+select,input[type=text],input[type=email],input[type=number],textarea{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:110px;resize:vertical}
+.results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.results-head h2{font-size:1.25rem}
+.results-head select{width:auto}
+.list{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 20px}
+.card h3{font-size:1.18rem;margin:3px 0 6px}
+.meta{font-size:.86rem;color:var(--muted)}
+.meta b{color:var(--fg);font-weight:600}
+.card p{margin:0 0 10px;color:var(--muted);font-size:.95rem;max-width:68ch}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--chip);border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:500}
+.chip.pay{background:var(--good-soft);color:var(--good)}
+.chip.type{background:var(--accent-soft);color:var(--accent)}
+.side{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:12px;text-align:right}
+.price{font-family:var(--font-display);font-weight:700;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.price small{display:block;font:400 .78rem var(--font-body);color:var(--muted)}
+.price.free{color:var(--muted);font-size:1rem}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:36px 20px;text-align:center;color:var(--muted)}
+
+/* forms/pages */
+.page{padding-block:34px 60px}
+.page h1{font-size:clamp(1.6rem,4vw,2.3rem)}
+.page .lead{color:var(--muted);max-width:60ch;margin:10px 0 24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-grid .full{grid-column:1/-1}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font-size:.85rem;font-weight:600}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.steps div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.steps b{display:block;font-family:var(--font-display);margin-bottom:3px}
+.steps span{color:var(--muted);font-size:.9rem}
+.mine-block{margin-top:26px}
+.mine-block h2{font-size:1.2rem;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:8px}
+.row .meta{margin-top:2px}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,12,30,.6);display:grid;place-items:center;padding:16px;z-index:50;overflow:auto}
+.modal{background:var(--surface);border-radius:16px;width:min(560px,100%);padding:24px;max-height:100%;overflow:auto;border:1px solid var(--line)}
+.modal h2{font-size:1.35rem}
+.modal .meta{margin:4px 0 16px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:10px;font-size:.92rem;z-index:60;max-width:calc(100% - 32px);text-align:center}
+footer{border-top:1px solid var(--line);padding-block:22px 30px;color:var(--muted);font-size:.86rem}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .filters{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .filters h2,.filters .reset{grid-column:1/-1}
+  .searchbar{grid-template-columns:minmax(0,1fr)}
+  nav{margin-left:0;order:3;width:100%}
+  .langs{margin-left:auto}
+}
+@media (max-width:560px){
+  .card{grid-template-columns:minmax(0,1fr)}
+  .side{align-items:flex-start;text-align:left}
+  .actions{justify-content:flex-start}
+  .form-grid,.steps{grid-template-columns:minmax(0,1fr)}
+  .filters{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
+</style>
+
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="logo" href="#offers" aria-label="DirasaJob">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><g fill="var(--accent)"><rect x="6" y="6" width="20" height="20"/><rect x="6" y="6" width="20" height="20" transform="rotate(45 16 16)"/></g><circle cx="16" cy="16" r="4.5" fill="var(--saffron)"/></svg>
+      <span>DirasaJob<small data-i18n="tagline"></small></span>
+    </a>
+    <nav aria-label="Main">
+      <a href="#offers" data-view="offers" data-i18n="nav_offers"></a>
+      <a href="#post" data-view="post" data-i18n="nav_post"></a>
+      <a href="#mine" data-view="mine"><span data-i18n="nav_mine"></span> <span id="mineCount"></span></a>
+    </nav>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- OFFERS -->
+<section id="view-offers">
+  <div class="hero">
+    <div class="wrap">
+      <h1 data-i18n="h1"></h1>
+      <p data-i18n="sub"></p>
+      <form class="searchbar" id="heroSearch" role="search">
+        <input type="text" id="q" data-i18n-ph="q_ph" aria-label="Search" autocomplete="off">
+        <select id="cityHero" aria-label="City"></select>
+        <button class="btn saffron" type="submit" data-i18n="search"></button>
+      </form>
+      <div class="hero-stats" id="heroStats"></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="note" data-i18n="sample_note"></div>
+    <div class="layout">
+      <aside class="filters" aria-label="Filters">
+        <h2 data-i18n="filters"></h2>
+        <fieldset class="fgroup"><legend data-i18n="f_type_h"></legend><div id="typeChecks" style="display:grid;gap:7px"></div></fieldset>
+        <div class="fgroup"><label for="fField" data-i18n="field"></label><select id="fField"></select></div>
+        <div class="fgroup"><label for="fLang" data-i18n="language"></label><select id="fLang"></select></div>
+        <div class="fgroup"><label class="check"><input type="checkbox" id="fPaid"><span data-i18n="only_paid"></span></label></div>
+        <button class="btn ghost reset" type="button" id="resetBtn" data-i18n="reset"></button>
+      </aside>
+      <div>
+        <div class="results-head">
+          <h2 id="count" aria-live="polite"></h2>
+          <select id="sort" aria-label="Sort"></select>
+        </div>
+        <div class="list" id="list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POST -->
+<section id="view-post" hidden>
+  <div class="wrap page">
+    <h1 data-i18n="post_h1"></h1>
+    <p class="lead" data-i18n="post_sub"></p>
+    <div class="steps">
+      <div><b data-i18n="s1_t"></b><span data-i18n="s1_d"></span></div>
+      <div><b data-i18n="s2_t"></b><span data-i18n="s2_d"></span></div>
+      <div><b data-i18n="s3_t"></b><span data-i18n="s3_d"></span></div>
+    </div>
+    <form class="panel" id="postForm">
+      <div class="form-grid">
+        <div class="field"><label for="pCo" data-i18n="f_company"></label><input type="text" id="pCo" required maxlength="80"></div>
+        <div class="field"><label for="pEmail" data-i18n="f_email"></label><input type="email" id="pEmail" required maxlength="120"></div>
+        <div class="field full"><label for="pTitle" data-i18n="f_title"></label><input type="text" id="pTitle" required maxlength="100"></div>
+        <div class="field"><label for="pCity" data-i18n="f_city"></label><select id="pCity" required></select></div>
+        <div class="field"><label for="pType" data-i18n="f_type"></label><select id="pType" required></select></div>
+        <div class="field"><label for="pField" data-i18n="f_field"></label><select id="pField" required></select></div>
+        <div class="field"><label for="pMode" data-i18n="f_mode"></label><select id="pMode" required></select></div>
+        <div class="field"><label for="pDur" id="pDurL"></label><input type="number" id="pDur" min="1" max="60" value="3" required></div>
+        <div class="field"><label for="pPay" id="pPayL"></label><input type="number" id="pPay" min="0" max="50000" value="0" required></div>
+        <div class="field"><label for="pLang" data-i18n="f_lang"></label><select id="pLang"></select></div>
+        <div class="field full"><label for="pDesc" data-i18n="f_desc"></label><textarea id="pDesc" required maxlength="600"></textarea></div>
+      </div>
+      <div class="modal-actions"><button class="btn primary" type="submit" data-i18n="publish"></button></div>
+    </form>
+  </div>
+</section>
+
+<!-- MINE -->
+<section id="view-mine" hidden>
+  <div class="wrap page">
+    <h1 data-i18n="mine_h1"></h1>
+    <p class="lead" data-i18n="mine_sub"></p>
+    <div class="mine-block"><h2 data-i18n="saved_h"></h2><div id="mineSaved"></div></div>
+    <div class="mine-block"><h2 data-i18n="apps_h"></h2><div id="mineApps"></div></div>
+    <div class="mine-block"><h2 data-i18n="posted_h"></h2><div id="minePosted"></div></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap" data-i18n="footer"></div></footer>
+
+<!-- apply modal -->
+<div class="overlay" id="applyOverlay" hidden>
+  <form class="modal" id="applyForm" role="dialog" aria-modal="true" aria-labelledby="applyTitle">
+    <h2 id="applyTitle"></h2>
+    <div class="meta" id="applyMeta"></div>
+    <div class="form-grid">
+      <div class="field"><label for="aName" data-i18n="name"></label><input type="text" id="aName" required maxlength="80" autocomplete="name"></div>
+      <div class="field"><label for="aEmail" data-i18n="email"></label><input type="email" id="aEmail" required maxlength="120" autocomplete="email"></div>
+      <div class="field full"><label for="aSchool" data-i18n="school"></label><input type="text" id="aSchool" required maxlength="100" data-i18n-ph="school_ph"></div>
+      <div class="field full"><label for="aMsg" data-i18n="message"></label><textarea id="aMsg" maxlength="600" data-i18n-ph="msg_ph"></textarea></div>
+    </div>
+    <p class="meta" data-i18n="proto_note"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" id="applyCancel" data-i18n="cancel"></button>
+      <button type="submit" class="btn primary" data-i18n="submit_app"></button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var mem={};
+var store={
+  get:function(k,d){try{var v=localStorage.getItem(k);if(v!==null)return JSON.parse(v)}catch(e){}return (k in mem)?mem[k]:d},
+  set:function(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+
+/* ---------- translations ---------- */
+var I18N={
+en:{tagline:"Internships & student jobs",nav_offers:"Offers",nav_post:"For companies",nav_mine:"My space",
+h1:"Your first experience starts here.",sub:"Internships, end-of-studies projects and student jobs from companies across Morocco, searchable by city, field and language.",
+q_ph:"Job title, company or skill",all_cities:"All cities",search:"Search",
+sample_note:"Sample listings: the companies below are fictional examples that show how the site works. Offers you publish are stored in this browser only.",
+filters:"Filters",f_type_h:"Type",field:"Field",all_fields:"All fields",language:"Language",any_lang:"Any language",only_paid:"Paid offers only",reset:"Reset filters",
+sort_new:"Newest first",sort_pay:"Highest pay",
+count_one:"1 offer",count_n:"{n} offers",no_results:"No offer matches these filters. Try another city or clear a filter.",
+save:"Save",saved:"Saved",apply:"Apply",today:"Posted today",days:"Posted {n} days ago",day1:"Posted yesterday",
+unpaid:"Unpaid",per_month:"per month",per_hour:"per hour",months:"{n} months",hours_week:"{n} h/week",
+mode_onsite:"On site",mode_hybrid:"Hybrid",mode_remote:"Remote",
+type_intern:"Internship",type_pfe:"PFE (end-of-studies)",type_summer:"Summer internship",type_part:"Part-time student job",
+field_finance:"Finance & accounting",field_it:"IT & data",field_marketing:"Marketing",field_logistics:"Logistics",field_law:"Law",field_engineering:"Engineering",field_hr:"HR",field_design:"Design",field_service:"Customer service",
+apply_title:"Apply: {t}",name:"Full name",email:"Email",school:"School or university",school_ph:"ENCG, ENSA, FST, EMSI, faculty...",message:"Message to the company (optional)",msg_ph:"Tell them why you are a good fit.",
+submit_app:"Save application",cancel:"Cancel",proto_note:"Demo mode: your application is saved in this browser. It is not sent to the company yet.",
+app_saved:"Application saved in My space.",
+post_h1:"Hire students in Morocco",post_sub:"Publish an internship, PFE or student job in two minutes. Students filter by city, field and language, then apply directly.",
+s1_t:"Describe the role",s1_d:"Title, city, duration and pay.",s2_t:"Students find it",s2_d:"Filters by city, field and language.",s3_t:"Receive applications",s3_d:"Each one comes with school and a message.",
+f_company:"Company name",f_email:"Contact email",f_title:"Offer title",f_city:"City",f_type:"Type",f_field:"Field",f_mode:"Work mode",f_lang:"Working language",f_desc:"Description",
+dur_months:"Duration (months)",dur_hours:"Hours per week",pay_month:"Pay (MAD per month, 0 if unpaid)",pay_hour:"Pay (MAD per hour)",
+publish:"Publish offer",published:"Offer published in this browser. Find it first in the list.",
+mine_h1:"My space",mine_sub:"Saved offers, applications and offers you published. Everything is kept in this browser.",
+saved_h:"Saved offers",apps_h:"My applications",posted_h:"Offers I published",none_yet:"Nothing here yet.",remove:"Remove",open:"Open",
+applied_on:"Applied {d}",footer:"DirasaJob is a demo of a student and company matching site. Sample companies are fictional."},
+fr:{tagline:"Stages & jobs étudiants",nav_offers:"Offres",nav_post:"Entreprises",nav_mine:"Mon espace",
+h1:"Votre première expérience commence ici.",sub:"Stages, PFE et jobs étudiants proposés par des entreprises partout au Maroc, à filtrer par ville, domaine et langue.",
+q_ph:"Poste, entreprise ou compétence",all_cities:"Toutes les villes",search:"Rechercher",
+sample_note:"Offres d'exemple : les entreprises ci-dessous sont fictives et montrent le fonctionnement du site. Les offres que vous publiez restent dans ce navigateur.",
+filters:"Filtres",f_type_h:"Type",field:"Domaine",all_fields:"Tous les domaines",language:"Langue",any_lang:"Toutes les langues",only_paid:"Offres rémunérées seulement",reset:"Réinitialiser",
+sort_new:"Plus récentes",sort_pay:"Mieux rémunérées",
+count_one:"1 offre",count_n:"{n} offres",no_results:"Aucune offre ne correspond. Essayez une autre ville ou retirez un filtre.",
+save:"Enregistrer",saved:"Enregistrée",apply:"Postuler",today:"Publiée aujourd'hui",days:"Publiée il y a {n} jours",day1:"Publiée hier",
+unpaid:"Non rémunéré",per_month:"par mois",per_hour:"par heure",months:"{n} mois",hours_week:"{n} h/semaine",
+mode_onsite:"Sur site",mode_hybrid:"Hybride",mode_remote:"À distance",
+type_intern:"Stage",type_pfe:"PFE (fin d'études)",type_summer:"Stage d'été",type_part:"Job étudiant à temps partiel",
+field_finance:"Finance & comptabilité",field_it:"Informatique & data",field_marketing:"Marketing",field_logistics:"Logistique",field_law:"Droit",field_engineering:"Ingénierie",field_hr:"RH",field_design:"Design",field_service:"Service client",
+apply_title:"Postuler : {t}",name:"Nom complet",email:"Email",school:"École ou université",school_ph:"ENCG, ENSA, FST, EMSI, faculté...",message:"Message à l'entreprise (facultatif)",msg_ph:"Expliquez pourquoi votre profil convient.",
+submit_app:"Enregistrer la candidature",cancel:"Annuler",proto_note:"Mode démo : votre candidature est enregistrée dans ce navigateur. Elle n'est pas encore envoyée à l'entreprise.",
+app_saved:"Candidature enregistrée dans Mon espace.",
+post_h1:"Recrutez des étudiants au Maroc",post_sub:"Publiez un stage, un PFE ou un job étudiant en deux minutes. Les étudiants filtrent par ville, domaine et langue, puis postulent directement.",
+s1_t:"Décrivez le poste",s1_d:"Titre, ville, durée et rémunération.",s2_t:"Les étudiants le trouvent",s2_d:"Filtres par ville, domaine et langue.",s3_t:"Recevez des candidatures",s3_d:"Chacune indique l'école et un message.",
+f_company:"Nom de l'entreprise",f_email:"Email de contact",f_title:"Titre de l'offre",f_city:"Ville",f_type:"Type",f_field:"Domaine",f_mode:"Mode de travail",f_lang:"Langue de travail",f_desc:"Description",
+dur_months:"Durée (mois)",dur_hours:"Heures par semaine",pay_month:"Rémunération (MAD par mois, 0 si non rémunéré)",pay_hour:"Rémunération (MAD par heure)",
+publish:"Publier l'offre",published:"Offre publiée dans ce navigateur. Elle apparaît en premier.",
+mine_h1:"Mon espace",mine_sub:"Offres enregistrées, candidatures et offres publiées. Tout reste dans ce navigateur.",
+saved_h:"Offres enregistrées",apps_h:"Mes candidatures",posted_h:"Offres que j'ai publiées",none_yet:"Rien pour le moment.",remove:"Retirer",open:"Voir",
+applied_on:"Envoyée le {d}",footer:"DirasaJob est une démo de site de mise en relation entre étudiants et entreprises. Les entreprises d'exemple sont fictives."}
+};
+var lang=store.get("fursa.lang",null)||((navigator.language||"en").slice(0,2)==="fr"?"fr":"en");
+function t(k,vars){var s=(I18N[lang]&&I18N[lang][k])||I18N.en[k]||k;if(vars)for(var v in vars)s=s.replace("{"+v+"}",vars[v]);return s}
+
+/* ---------- data ---------- */
+var CITIES=["Casablanca","Rabat","Tangier","Marrakech","Fès","Agadir","Tétouan","Kénitra"];
+var CITY_FR={"Tangier":"Tanger"};
+function cityName(c){return lang==="fr"&&CITY_FR[c]?CITY_FR[c]:c}
+var TYPES=["intern","pfe","summer","part"];
+var FIELDS=["finance","it","marketing","logistics","law","engineering","hr","design","service"];
+var MODES=["onsite","hybrid","remote"];
+var LANGS={fr:"Français",en:"English",ar:"العربية"};
+var SAMPLE=[
+{id:"s1",co:"Atlas Conserves",city:"Casablanca",type:"intern",field:"finance",mode:"onsite",dur:3,pay:2000,langs:["fr"],days:2,
+ title:{en:"Cost accounting intern",fr:"Stagiaire comptabilité de gestion"},
+ desc:{en:"Build cost sheets for three product lines, track overheads and help prepare the monthly management report.",fr:"Élaboration de fiches de coûts pour trois gammes, suivi des charges et appui au reporting mensuel de gestion."},tags:["Excel","Cost accounting","Reporting"]},
+{id:"s2",co:"Cabinet Medina & Associés",city:"Casablanca",type:"intern",field:"law",mode:"onsite",dur:2,pay:1500,langs:["fr","ar"],days:4,
+ title:{en:"Business law intern",fr:"Stagiaire en droit des affaires"},
+ desc:{en:"Draft company statutes, prepare commercial court filings and research case law with a senior associate.",fr:"Rédaction de statuts de sociétés, préparation de dossiers au tribunal de commerce et recherche de jurisprudence avec un associé."},tags:["Droit des sociétés","Contracts","Research"]},
+{id:"s3",co:"Zellige Digital",city:"Tangier",type:"pfe",field:"it",mode:"hybrid",dur:6,pay:4000,langs:["fr","en"],days:1,
+ title:{en:"Front-end developer (PFE)",fr:"Développeur front-end (PFE)"},
+ desc:{en:"Build a booking dashboard in React for a hospitality client, with a mentor and weekly code reviews.",fr:"Réalisation d'un tableau de bord de réservation en React pour un client hôtelier, avec tuteur et revues de code hebdomadaires."},tags:["React","JavaScript","Git"]},
+{id:"s4",co:"Tanger Call Hub",city:"Tangier",type:"part",field:"service",mode:"onsite",dur:20,pay:35,langs:["fr","en"],days:3,
+ title:{en:"Customer support agent, evenings",fr:"Conseiller clientèle, soirées"},
+ desc:{en:"Answer customer chats and calls for a European retailer. Evening shifts that fit around your classes, training provided.",fr:"Réponse aux chats et appels clients d'un distributeur européen. Horaires de soirée compatibles avec vos cours, formation fournie."},tags:["Communication","French","English"]},
+{id:"s5",co:"Souss Argan Coop",city:"Agadir",type:"summer",field:"marketing",mode:"remote",dur:2,pay:1200,langs:["fr","en","ar"],days:6,
+ title:{en:"Marketing and social media intern",fr:"Stagiaire marketing et réseaux sociaux"},
+ desc:{en:"Plan content for Instagram and TikTok, photograph products and help launch an online shop for export customers.",fr:"Planification de contenus Instagram et TikTok, photos produits et appui au lancement d'une boutique en ligne pour l'export."},tags:["Instagram","Content","Canva"]},
+{id:"s6",co:"Tanger Port Services",city:"Tangier",type:"pfe",field:"logistics",mode:"onsite",dur:6,pay:3500,langs:["fr","en"],days:5,
+ title:{en:"Supply chain analyst (PFE)",fr:"Analyste supply chain (PFE)"},
+ desc:{en:"Analyse container dwell times and propose a scheduling improvement for the inland freight team.",fr:"Analyse des temps de séjour des conteneurs et proposition d'amélioration du planning pour l'équipe fret terrestre."},tags:["Logistics","Excel","Power BI"]},
+{id:"s7",co:"Rabat Talent Partners",city:"Rabat",type:"intern",field:"hr",mode:"hybrid",dur:3,pay:2000,langs:["fr"],days:8,
+ title:{en:"Recruitment intern",fr:"Stagiaire recrutement"},
+ desc:{en:"Source candidates, screen CVs and schedule interviews for IT and finance roles.",fr:"Sourcing de candidats, présélection de CV et planification d'entretiens pour des postes IT et finance."},tags:["Sourcing","LinkedIn","Interviews"]},
+{id:"s8",co:"Atlas Insight",city:"Rabat",type:"intern",field:"it",mode:"hybrid",dur:4,pay:3000,langs:["fr","en"],days:2,
+ title:{en:"Data analyst intern",fr:"Stagiaire data analyst"},
+ desc:{en:"Clean survey data, build SQL queries and publish weekly dashboards for retail clients.",fr:"Nettoyage de données d'enquête, requêtes SQL et tableaux de bord hebdomadaires pour des clients du commerce."},tags:["SQL","Python","Dashboards"]},
+{id:"s9",co:"Kasbah Studio",city:"Marrakech",type:"summer",field:"design",mode:"remote",dur:2,pay:0,langs:["en","fr"],days:10,
+ title:{en:"UI/UX design intern",fr:"Stagiaire design UI/UX"},
+ desc:{en:"Redesign onboarding screens for a travel app. Unpaid, with a portfolio review and a reference letter at the end.",fr:"Refonte des écrans d'accueil d'une application de voyage. Non rémunéré, avec revue de portfolio et lettre de recommandation."},tags:["Figma","UX","Prototyping"]},
+{id:"s10",co:"Académie Rif",city:"Tétouan",type:"part",field:"finance",mode:"onsite",dur:8,pay:60,langs:["fr","ar"],days:7,
+ title:{en:"Accounting and maths tutor",fr:"Tuteur en comptabilité et mathématiques"},
+ desc:{en:"Tutor first-year university students in small groups, two afternoons a week.",fr:"Soutien en petits groupes pour des étudiants de première année, deux après-midis par semaine."},tags:["Teaching","Accounting","Maths"]},
+{id:"s11",co:"Fès Industrial Parts",city:"Fès",type:"intern",field:"engineering",mode:"onsite",dur:3,pay:2500,langs:["fr"],days:12,
+ title:{en:"Mechanical engineering intern",fr:"Stagiaire ingénierie mécanique"},
+ desc:{en:"Support the quality team on dimensional checks and help document a new production line.",fr:"Appui à l'équipe qualité pour les contrôles dimensionnels et documentation d'une nouvelle ligne de production."},tags:["Quality","CAD","Production"]},
+{id:"s12",co:"Rif Audit & Conseil",city:"Casablanca",type:"summer",field:"finance",mode:"onsite",dur:2,pay:2500,langs:["fr","en"],days:1,
+ title:{en:"Audit assistant, summer",fr:"Assistant audit, été"},
+ desc:{en:"Join an audit team on client sites: test samples, reconcile accounts and write working papers.",fr:"Intégration d'une équipe d'audit chez les clients : tests par sondage, rapprochements et rédaction de feuilles de travail."},tags:["Audit","Accounting","Excel"]}
+];
+
+/* ---------- state ---------- */
+var mine=store.get("fursa.posted",[]);
+var saved=store.get("fursa.saved",[]);
+var apps=store.get("fursa.apps",[]);
+var F={q:"",city:"",types:{},field:"",lang:"",paid:false,sort:"new"};
+var applyingId=null;
+
+function allOffers(){return mine.concat(SAMPLE)}
+function tx(o,key){var v=o[key];return (v&&typeof v==="object")?(v[lang]||v.en):v}
+function money(n){return n.toLocaleString(lang==="fr"?"fr-FR":"en-US")}
+function findOffer(id){var a=allOffers();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
+function toast(msg){var el=$("#toast");el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},3200)}
+
+/* ---------- static text ---------- */
+function applyI18n(){
+  document.documentElement.lang=lang;
+  $$("[data-i18n]").forEach(function(el){el.textContent=t(el.getAttribute("data-i18n"))});
+  $$("[data-i18n-ph]").forEach(function(el){el.placeholder=t(el.getAttribute("data-i18n-ph"))});
+  $$(".langs button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-lang")===lang?"true":"false")});
+  buildSelects();
+  buildTypeChecks();
+  updatePostLabels();
+  $("#heroStats").innerHTML='<span><b>'+allOffers().length+'</b>'+esc(t("count_n",{n:""}).trim())+'</span><span><b>'+CITIES.length+'</b>'+(lang==="fr"?"villes":"cities")+'</span><span><b>'+FIELDS.length+'</b>'+(lang==="fr"?"domaines":"fields")+'</span>';
+}
+function opt(v,l,sel){return '<option value="'+esc(v)+'"'+(sel?' selected':'')+'>'+esc(l)+'</option>'}
+function buildSelects(){
+  var cur;
+  cur=$("#cityHero").value||F.city;
+  $("#cityHero").innerHTML=opt("",t("all_cities"))+CITIES.map(function(c){return opt(c,cityName(c),c===cur)}).join("");
+  cur=F.field;
+  $("#fField").innerHTML=opt("",t("all_fields"))+FIELDS.map(function(f){return opt(f,t("field_"+f),f===cur)}).join("");
+  cur=F.lang;
+  $("#fLang").innerHTML=opt("",t("any_lang"))+Object.keys(LANGS).map(function(l){return opt(l,LANGS[l],l===cur)}).join("");
+  cur=F.sort;
+  $("#sort").innerHTML=opt("new",t("sort_new"),cur==="new")+opt("pay",t("sort_pay"),cur==="pay");
+  var pc=$("#pCity").value;
+  $("#pCity").innerHTML=CITIES.map(function(c){return opt(c,cityName(c),c===pc)}).join("");
+  var pt=$("#pType").value;
+  $("#pType").innerHTML=TYPES.map(function(x){return opt(x,t("type_"+x),x===pt)}).join("");
+  var pf=$("#pField").value;
+  $("#pField").innerHTML=FIELDS.map(function(x){return opt(x,t("field_"+x),x===pf)}).join("");
+  var pm=$("#pMode").value;
+  $("#pMode").innerHTML=MODES.map(function(x){return opt(x,t("mode_"+x),x===pm)}).join("");
+  var pl=$("#pLang").value;
+  $("#pLang").innerHTML=Object.keys(LANGS).map(function(l){return opt(l,LANGS[l],l===pl)}).join("");
+}
+function buildTypeChecks(){
+  $("#typeChecks").innerHTML=TYPES.map(function(x){
+    return '<label class="check"><input type="checkbox" data-type="'+x+'"'+(F.types[x]?' checked':'')+'><span>'+esc(t("type_"+x))+'</span></label>';
+  }).join("");
+}
+function updatePostLabels(){
+  var part=$("#pType").value==="part";
+  $("#pDurL").textContent=part?t("dur_hours"):t("dur_months");
+  $("#pPayL").textContent=part?t("pay_hour"):t("pay_month");
+}
+
+/* ---------- offers ---------- */
+function matches(o){
+  if(F.city&&o.city!==F.city)return false;
+  if(F.field&&o.field!==F.field)return false;
+  if(F.lang&&o.langs.indexOf(F.lang)<0)return false;
+  if(F.paid&&!(o.pay>0))return false;
+  var any=false,sel=false;for(var k in F.types){if(F.types[k]){sel=true;if(o.type===k)any=true}}
+  if(sel&&!any)return false;
+  if(F.q){
+    var hay=[o.co,o.city,(o.tags||[]).join(" "),typeof o.title==="object"?(o.title.en+" "+o.title.fr):o.title,typeof o.desc==="object"?(o.desc.en+" "+o.desc.fr):o.desc].join(" ").toLowerCase();
+    var parts=F.q.toLowerCase().split(/\s+/).filter(Boolean);
+    for(var i=0;i<parts.length;i++)if(hay.indexOf(parts[i])<0)return false;
+  }
+  return true;
+}
+function postedText(d){return d<=0?t("today"):d===1?t("day1"):t("days",{n:d})}
+function durText(o){return o.type==="part"?t("hours_week",{n:o.dur}):t("months",{n:o.dur})}
+function priceHtml(o){
+  if(!(o.pay>0))return '<div class="price free">'+esc(t("unpaid"))+'</div>';
+  return '<div class="price">'+money(o.pay)+' MAD<small>'+esc(o.type==="part"?t("per_hour"):t("per_month"))+'</small></div>';
+}
+function cardHtml(o){
+  var isSaved=saved.indexOf(o.id)>=0;
+  var langs=o.langs.map(function(l){return LANGS[l]}).join(" · ");
+  return '<article class="card" data-id="'+esc(o.id)+'">'+
+   '<div><div class="meta"><b>'+esc(o.co)+'</b> · '+esc(cityName(o.city))+' · '+esc(postedText(o.days))+'</div>'+
+   '<h3>'+esc(tx(o,"title"))+'</h3>'+
+   '<p>'+esc(tx(o,"desc"))+'</p>'+
+   '<div class="chips"><span class="chip type">'+esc(t("type_"+o.type))+'</span><span class="chip">'+esc(durText(o))+'</span><span class="chip">'+esc(t("mode_"+o.mode))+'</span><span class="chip">'+esc(t("field_"+o.field))+'</span><span class="chip">'+esc(langs)+'</span>'+
+   (o.tags||[]).map(function(x){return '<span class="chip">'+esc(x)+'</span>'}).join("")+'</div></div>'+
+   '<div class="side">'+priceHtml(o)+'<div class="actions"><button type="button" class="btn" data-act="save" aria-pressed="'+isSaved+'">'+esc(isSaved?t("saved"):t("save"))+'</button><button type="button" class="btn primary" data-act="apply">'+esc(t("apply"))+'</button></div></div></article>';
+}
+function renderList(){
+  var res=allOffers().filter(matches);
+  res.sort(function(a,b){return F.sort==="pay"?((b.type==="part"?b.pay*0:b.pay)-(a.type==="part"?a.pay*0:a.pay))||(a.days-b.days):(a.days-b.days)});
+  $("#count").textContent=res.length===1?t("count_one"):t("count_n",{n:res.length});
+  $("#list").innerHTML=res.length?res.map(cardHtml).join(""):'<div class="empty">'+esc(t("no_results"))+'</div>';
+}
+
+/* ---------- my space ---------- */
+function renderMine(){
+  $("#mineCount").textContent=(saved.length+apps.length+mine.length)?"("+(saved.length+apps.length+mine.length)+")":"";
+  var none='<div class="empty">'+esc(t("none_yet"))+'</div>';
+  var sv=saved.map(findOffer).filter(Boolean);
+  $("#mineSaved").innerHTML=sv.length?sv.map(function(o){
+    return '<div class="row"><div><b>'+esc(tx(o,"title"))+'</b><div class="meta">'+esc(o.co)+' · '+esc(cityName(o.city))+'</div></div><div class="actions"><button class="btn" data-mine="apply" data-id="'+esc(o.id)+'">'+esc(t("apply"))+'</button><button class="btn danger" data-mine="unsave" data-id="'+esc(o.id)+'">'+esc(t("remove"))+'</button></div></div>';
+  }).join(""):none;
+  $("#mineApps").innerHTML=apps.length?apps.map(function(a,i){
+    return '<div class="row"><div><b>'+esc(a.title)+'</b><div class="meta">'+esc(a.co)+' · '+esc(t("applied_on",{d:a.date}))+' · '+esc(a.school)+'</div></div><button class="btn danger" data-mine="delapp" data-i="'+i+'">'+esc(t("remove"))+'</button></div>';
+  }).join(""):none;
+  $("#minePosted").innerHTML=mine.length?mine.map(function(o){
+    return '<div class="row"><div><b>'+esc(tx(o,"title"))+'</b><div class="meta">'+esc(o.co)+' · '+esc(cityName(o.city))+'</div></div><button class="btn danger" data-mine="delpost" data-id="'+esc(o.id)+'">'+esc(t("remove"))+'</button></div>';
+  }).join(""):none;
+}
+
+/* ---------- apply modal ---------- */
+function openApply(id){
+  var o=findOffer(id);if(!o)return;
+  applyingId=id;
+  $("#applyTitle").textContent=t("apply_title",{t:tx(o,"title")});
+  $("#applyMeta").textContent=o.co+" · "+cityName(o.city);
+  var prof=store.get("fursa.profile",{});
+  $("#aName").value=prof.name||"";$("#aEmail").value=prof.email||"";$("#aSchool").value=prof.school||"";$("#aMsg").value="";
+  $("#applyOverlay").hidden=false;
+  setTimeout(function(){$("#aName").focus()},0);
+}
+function closeApply(){$("#applyOverlay").hidden=true;applyingId=null}
+
+/* ---------- routing ---------- */
+function showView(){
+  var v=(location.hash||"#offers").slice(1);
+  if(["offers","post","mine"].indexOf(v)<0)v="offers";
+  ["offers","post","mine"].forEach(function(n){$("#view-"+n).hidden=(n!==v)});
+  $$("nav a").forEach(function(a){if(a.getAttribute("data-view")===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  if(v==="mine")renderMine();
+  window.scrollTo(0,0);
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click",function(e){
+  var lb=e.target.closest("[data-lang]");
+  if(lb){lang=lb.getAttribute("data-lang");store.set("fursa.lang",lang);applyI18n();renderList();renderMine();return}
+  var b=e.target.closest("[data-act]");
+  if(b){
+    var id=b.closest(".card").getAttribute("data-id");
+    if(b.getAttribute("data-act")==="save"){
+      var i=saved.indexOf(id);if(i>=0)saved.splice(i,1);else saved.push(id);
+      store.set("fursa.saved",saved);renderList();renderMine();
+    }else openApply(id);
+    return;
+  }
+  var m=e.target.closest("[data-mine]");
+  if(m){
+    var a=m.getAttribute("data-mine"),mid=m.getAttribute("data-id");
+    if(a==="apply")openApply(mid);
+    if(a==="unsave"){saved=saved.filter(function(x){return x!==mid});store.set("fursa.saved",saved)}
+    if(a==="delapp"){apps.splice(+m.getAttribute("data-i"),1);store.set("fursa.apps",apps)}
+    if(a==="delpost"){mine=mine.filter(function(x){return x.id!==mid});store.set("fursa.posted",mine);saved=saved.filter(function(x){return x!==mid});store.set("fursa.saved",saved);applyI18n();renderList()}
+    renderMine();renderList();
+  }
+});
+$("#heroSearch").addEventListener("submit",function(e){
+  e.preventDefault();F.q=$("#q").value.trim();F.city=$("#cityHero").value;renderList();
+  var l=$("#count");if(l&&l.scrollIntoView)l.scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("#cityHero").addEventListener("change",function(){F.city=this.value;renderList()});
+$("#q").addEventListener("input",function(){F.q=this.value.trim();renderList()});
+$("#typeChecks").addEventListener("change",function(e){var tp=e.target.getAttribute("data-type");if(tp){F.types[tp]=e.target.checked;renderList()}});
+$("#fField").addEventListener("change",function(){F.field=this.value;renderList()});
+$("#fLang").addEventListener("change",function(){F.lang=this.value;renderList()});
+$("#fPaid").addEventListener("change",function(){F.paid=this.checked;renderList()});
+$("#sort").addEventListener("change",function(){F.sort=this.value;renderList()});
+$("#resetBtn").addEventListener("click",function(){
+  F={q:"",city:"",types:{},field:"",lang:"",paid:false,sort:"new"};
+  $("#q").value="";$("#fPaid").checked=false;buildSelects();buildTypeChecks();renderList();
+});
+$("#pType").addEventListener("change",updatePostLabels);
+$("#applyCancel").addEventListener("click",closeApply);
+$("#applyOverlay").addEventListener("click",function(e){if(e.target===this)closeApply()});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("#applyOverlay").hidden)closeApply()});
+$("#applyForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var o=findOffer(applyingId);if(!o)return;
+  var rec={offerId:o.id,title:tx(o,"title"),co:o.co,name:$("#aName").value.trim(),email:$("#aEmail").value.trim(),school:$("#aSchool").value.trim(),msg:$("#aMsg").value.trim(),date:new Date().toLocaleDateString(lang==="fr"?"fr-FR":"en-GB")};
+  apps.unshift(rec);store.set("fursa.apps",apps);
+  store.set("fursa.profile",{name:rec.name,email:rec.email,school:rec.school});
+  closeApply();renderMine();toast(t("app_saved"));
+});
+$("#postForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var part=$("#pType").value==="part";
+  var o={id:"u"+Date.now(),co:$("#pCo").value.trim(),email:$("#pEmail").value.trim(),city:$("#pCity").value,type:$("#pType").value,field:$("#pField").value,mode:$("#pMode").value,
+    dur:Math.max(1,+$("#pDur").value||1),pay:Math.max(0,+$("#pPay").value||0),langs:[$("#pLang").value],days:0,title:$("#pTitle").value.trim(),desc:$("#pDesc").value.trim(),tags:[]};
+  mine.unshift(o);store.set("fursa.posted",mine);
+  this.reset();$("#pDur").value=3;$("#pPay").value=0;updatePostLabels();
+  F={q:"",city:"",types:{},field:"",lang:"",paid:false,sort:"new"};$("#q").value="";$("#fPaid").checked=false;
+  applyI18n();renderList();renderMine();
+  location.hash="#offers";toast(t("published"));
+});
+window.addEventListener("hashchange",showView);
+
+/* ---------- init ---------- */
+applyI18n();renderList();renderMine();showView();
+})();
+</script>
+
+</body></html>
